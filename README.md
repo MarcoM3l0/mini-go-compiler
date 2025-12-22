@@ -1,6 +1,6 @@
-# Mini-Lua Compiler
+# Mini-Go Compiler
 
-Compilador educacional para um subconjunto da linguagem **Lua (Mini-Lua)**, desenvolvido como projeto da disciplina **Linguagens Formais, Autômatos e Compiladores**.
+Compilador educacional para um subconjunto da linguagem **Go (Mini-Go**, desenvolvido como projeto da disciplina **Linguagens Formais, Autômatos e Compiladores**.
 
 O objetivo do projeto é aplicar, de forma prática, os principais conceitos envolvidos na construção de compiladores, incluindo análise léxica, sintática, semântica e geração de código intermediário.
 
@@ -8,7 +8,7 @@ O objetivo do projeto é aplicar, de forma prática, os principais conceitos env
 
 ## 📚 Sobre o Projeto
 
-Este projeto consiste na implementação de um compilador acadêmico capaz de processar algoritmos estruturados básicos escritos em uma versão simplificada da linguagem Lua, denominada **Mini-Lua**.
+Este projeto consiste na implementação de um compilador acadêmico capaz de processar algoritmos estruturados básicos escritos em uma versão simplificada da linguagem Go, denominada **Mini-Go**.
 
 O compilador **não tem fins comerciais**, sendo um artefato didático voltado para o aprendizado dos fundamentos teóricos e práticos da área de compiladores.
 
@@ -16,7 +16,7 @@ O compilador **não tem fins comerciais**, sendo um artefato didático voltado p
 
 ## 🎯 Objetivos
 
-- Definir formalmente a gramática da linguagem Mini-Lua (BNF/EBNF)
+- Definir formalmente a gramática da linguagem Mini-Go (EBNF)
 - Implementar:
   - Analisador Léxico (Scanner)
   - Analisador Sintático (Parser)
@@ -28,9 +28,9 @@ O compilador **não tem fins comerciais**, sendo um artefato didático voltado p
 
 ---
 
-## 🧩 Escopo da Linguagem (Mini-Lua)
+## 🧩 Escopo da Linguagem (Mini-Go)
 
-A Mini-Lua suporta os seguintes construtos:
+A Mini-Go suporta os seguintes construtos:
 
 ### ✔ Variáveis e Tipos de Dados
 - Declaração e atribuição de variáveis
