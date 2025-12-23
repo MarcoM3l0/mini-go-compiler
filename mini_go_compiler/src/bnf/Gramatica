@@ -1,0 +1,120 @@
+// Um programa é uma lista de comandos (declarações, comandos, blocos)
+<programa> ::= <lista_comandos>
+
+// Lista de comandos pode ser vazia (ε) ou composta
+<lista_comandos> ::= <comando> <lista_comandos> | ε
+
+// Um comando pode ser:
+// - um comando simples terminado por ;
+// - um se/senao (if/else)
+// - um laço para (for) 
+// - um bloco { ... }
+<comando> ::= <comando_simples> ";"
+             | <comando_if>
+             | <comando_for>
+             | <bloco>
+
+// Bloco é um agrupamento de comandos entre chaves
+<bloco> ::= "{" <lista_comandos> "}"
+
+// Comandos simples: declaração, atribuição, impressão ou leitura
+<comando_simples> ::= <declaracao>
+                    | <atribuicao>
+                    | <comando_imprimir>
+                    | <comando_ler>
+
+// Declaração de variável
+<declaracao> ::= "var" <identificador> <tipo> <inicializacao_opcional>
+<inicializacao_opcional> ::= "=" <expressao> | ε
+<tipo> ::= "int" | "float" | "string"
+
+// Atribuição: nome = expressão
+<atribuicao> ::= <identificador> "=" <expressao>
+
+// Comando de saída: comando_imprimir(expr, expr, ...)
+<comando_imprimir> ::= "imprimir" "(" <lista_expressoes> ")"
+<lista_expressoes> ::= <expressao> <mais_expressoes>
+<mais_expressoes> ::= "," <expressao> <mais_expressoes> | ε
+
+// Comando de entrada: ler(var, var, ...)
+<comando_ler> ::= "ler" "(" <lista_variaveis> ")"
+<lista_variaveis> ::= <identificador> <mais_variaveis>
+<mais_variaveis> ::= "," <identificador> <mais_variaveis> | ε
+
+// Estrutura condicional
+<comando_if> ::= "if" <expressao> <bloco> <opcional_else>
+<opcional_else> ::= "else" <bloco> | ε
+
+// Estrutura de repetição
+<comando_for> ::= <for_enquanto> | <for_classico>
+
+// For estilo while (equivalente ao while)
+<for_enquanto> ::= "for" <expressao> <bloco>
+
+// For clássico
+<for_classico> ::= "for" <opcional_inicio> ";" <opcional_condicao> ";" <opcional_pos> <bloco>
+<opcional_inicio> ::= <inicializacao> | ε
+<opcional_condicao> ::= <expressao> | ε
+<opcional_pos> ::= <atribuicao> | ε
+<inicializacao> ::= <declaracao> | <atribuicao>
+
+// Expressões com precedência
+<expressao> ::= <ou_logico>
+
+<ou_logico> ::= <e_logico> <mais_ou>
+<mais_ou> ::= "||" <e_logico> <mais_ou> | ε
+
+<e_logico> ::= <igualdade> <mais_e>
+<mais_e> ::= "&&" <igualdade> <mais_e> | ε
+
+<igualdade> ::= <relacional> <mais_igualdade>
+<mais_igualdade> ::= "==" <relacional> <mais_igualdade>
+                   | "!=" <relacional> <mais_igualdade>
+                   | ε
+
+<relacional> ::= <aditivo> <mais_relacional>
+<mais_relacional> ::= "<" <aditivo> <mais_relacional>
+                    | "<=" <aditivo> <mais_relacional>
+                    | ">" <aditivo> <mais_relacional>
+                    | ">=" <aditivo> <mais_relacional>
+                    | ε
+
+<aditivo> ::= <multiplicativo> <mais_aditivo>
+<mais_aditivo> ::= "+" <multiplicativo> <mais_aditivo>
+                 | "-" <multiplicativo> <mais_aditivo>
+                 | ε
+
+<multiplicativo> ::= <unario> <mais_multiplicativo>
+<mais_multiplicativo> ::= "*" <unario> <mais_multiplicativo>
+                        | "/" <unario> <mais_multiplicativo>
+                        | ε
+
+<unario> ::= <op_unario> <primario>
+<op_unario> ::= "!" | "-" | ε
+
+<primario> ::= <literal>
+             | <identificador>
+             | "(" <expressao> ")"
+
+// Literais
+<literal> ::= <inteiro> | <flutuante> | <texto>
+
+<inteiro> ::= <digito> <mais_digitos>
+<mais_digitos> ::= <digito> <mais_digitos> | ε
+
+<flutuante> ::= <digito> <mais_digitos> "." <digito> <mais_digitos>
+
+<texto> ::= "\"" <conteudo_texto> "\""
+<conteudo_texto> ::= <caractere_texto> <conteudo_texto> | ε
+<caractere_texto> ::= qualquer-caractere-exceto-aspas-ou-barra | <escape>
+<escape> ::= "\\" "\"" | "\\" "\\" | "\\\""
+
+// Identificadores
+<identificador> ::= <letra> <resto_identificador>
+<resto_identificador> ::= <letra> <resto_identificador>
+                        | <digito> <resto_identificador>
+                        | "_" <resto_identificador>
+                        | ε
+
+<letra> ::= "A" | ... | "Z" | "a" | ... | "z"
+<digito> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
