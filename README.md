@@ -27,33 +27,20 @@ O compilador **não tem fins comerciais**, sendo um artefato didático voltado p
 - Utilizar testes unitários para validar cada etapa do compilador
 
 ---
+## 👥 Colaboradores
 
-## 🧩 Escopo da Linguagem (Mini-Go)
+Este projeto foi desenvolvido de forma colaborativa pelos seguintes integrantes:
 
-A Mini-Go suporta os seguintes construtos:
+- [**Marco Melo**](https://github.com/MarcoM3l0) 
 
-### ✔ Variáveis e Tipos de Dados
-- Declaração e atribuição de variáveis
-- Tipos primitivos:
-  - Números (inteiro e/ou ponto flutuante)
-  - Texto (strings)
+- [**Alaise Caetano**](https://github.com/alaise-tech)
 
-### ✔ Entrada e Saída
-- Leitura de dados do teclado
-- Escrita de dados na tela
+- [**Raimundo Junio**](https://github.com/RaimundoRJS)
 
-### ✔ Expressões
-- Aritméticas: `+`, `-`, `*`, `/`
-- Relacionais: `>`, `<`, `>=`, `<=`, `==`, `!=`
-- Lógicas: `and`, `or`, `not`
-- Respeito à precedência de operadores
+- [**Wesley Souza**](https://github.com/WesleySouza93)
 
-### ✔ Controle de Fluxo
-- Estruturas condicionais: `if` / `else`
-- Estruturas de repetição: `while` ou `for`
+---
 
-### ❌ Fora do Escopo
-- Declaração de funções
-- Vetores, matrizes ou estruturas
-- Ponteiros ou alocação dinâmica manual
+## 🏫 Contexto Acadêmico
 
+Projeto desenvolvido como parte da disciplina **Linguagens Formais, Autômatos e Compiladores**, com fins exclusivamente educacionais.
