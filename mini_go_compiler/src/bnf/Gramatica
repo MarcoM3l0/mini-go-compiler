@@ -10,8 +10,8 @@
 // - um laço para (for) 
 // - um bloco { ... }
 <comando> ::= <comando_simples> ";"
-             | <comando_if>
-             | <comando_for>
+             | <comando_se>
+             | <comando_para>
              | <bloco>
 
 // Bloco é um agrupamento de comandos entre chaves
@@ -42,7 +42,7 @@
 <mais_variaveis> ::= "," <identificador> <mais_variaveis> | ε
 
 // Estrutura condicional
-<comando_if> ::= "se" <expressao> <bloco> <senao_opcional>
+<comando_se> ::= "se" <expressao> <bloco> <senao_opcional>
 <senao_opcional> ::= "senao" <bloco> | ε
 
 /* 
