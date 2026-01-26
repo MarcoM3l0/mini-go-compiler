@@ -196,7 +196,11 @@ public class Parser {
 
             Comando incremento = null;
             if (!check(TokenType.ABRE_CHAVE)) {
-                incremento = parseAtribuicao(); // Gramática define incremento como atribuição simples
+                // Em vez de parseAtribuicao(), vamos fazer um mini-parser de atribuição sem ";"
+                Token nomeAtrib = consume(TokenType.IDENTIFICADOR, "Esperado identificador no incremento.");
+                consume(TokenType.ATRIBUICAO, "Esperado '=' no incremento.");
+                Expressao valorAtrib = parseExpressao();
+                incremento = new Comando.Atribuicao(nomeAtrib, valorAtrib);
             }
 
             Comando corpo = parseBloco();
