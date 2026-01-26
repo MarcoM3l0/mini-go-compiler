@@ -318,13 +318,26 @@ public class AnalisadorSemanticoTest {
     @Test
     public void testCondicionalTexto() {
         String codigo = """
-            var texto texto = "abc";
-            se texto {
+            var meuTexto texto = "abc";
+            se meuTexto == "abc" {     
                 imprimir("ok");
             }
             """;
         
-        assertFalse(compilar(codigo), "Não pode usar texto como condição");
+        assertTrue(compilar(codigo));  
+        assertEquals(0, analisador.getErros().size());
+    }
+    
+    @Test
+    public void testCondicionalTextoSemComparacao() {
+        String codigo = """
+            var meuTexto texto = "abc";
+            se meuTexto {              
+                imprimir("ok");
+            }
+            """;
+        
+        assertFalse(compilar(codigo), "Não pode usar texto diretamente");
         assertTrue(temErroTipo(ErroSemantico.TipoErro.TIPO_INVALIDO_CONDICAO));
     }
     
@@ -335,7 +348,7 @@ public class AnalisadorSemanticoTest {
     @Test
     public void testParaClassico() {
         String codigo = """
-            para i = 0; i < 10; i = i + 1 {
+            para var i inteiro = 0; i < 10; i = i + 1 {
                 imprimir(i);
             }
             """;
@@ -405,7 +418,7 @@ public class AnalisadorSemanticoTest {
     @Test
     public void testEscopoFor() {
         String codigo = """
-            para i = 0; i < 10; i = i + 1 {
+            para var i inteiro = 0; i < 10; i = i + 1 {
                 imprimir(i);
             }
             imprimir(i);
@@ -469,7 +482,7 @@ public class AnalisadorSemanticoTest {
                 imprimir("Soma menor ou igual a 25:", soma);
             }
             
-            para i = 0; i < soma; i = i + 1 {
+            para var i inteiro = 0; i < soma; i = i + 1 {
                 imprimir(i);
             }
             """;

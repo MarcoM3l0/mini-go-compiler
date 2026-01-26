@@ -153,7 +153,7 @@ public class AnalisadorSemantico implements Expressao.Visitor<Tipo>, Comando.Vis
     @Override
     public Void visitSe(Comando.Se comando) {
         // Verifica tipo da condição (deve ser booleana)
-        Tipo tipoCondicao = comando.condicao.accept(this);
+    	Tipo tipoCondicao = comando.condicao.accept(this);
         
         if (tipoCondicao != Tipo.BOOLEANO && tipoCondicao != Tipo.ERRO) {
             registrarErro(null,
@@ -174,9 +174,12 @@ public class AnalisadorSemantico implements Expressao.Visitor<Tipo>, Comando.Vis
     
     @Override
     public Void visitPara(Comando.Para comando) {
+    	
+    	// Garante escopo isolado para o laço todo
+    	tabela.entrarEscopo();
+    	
         // Para clássico: cria escopo para a inicialização
         if (comando.inicializacao != null) {
-            tabela.entrarEscopo();
             comando.inicializacao.accept(this);
         }
         
@@ -199,10 +202,9 @@ public class AnalisadorSemantico implements Expressao.Visitor<Tipo>, Comando.Vis
         // Analisa corpo
         comando.corpo.accept(this);
         
-        // Sai do escopo (se foi criado)
-        if (comando.inicializacao != null) {
-            tabela.sairEscopo();
-        }
+        
+        // Fecha o escopo
+        tabela.sairEscopo();
         
         return null;
     }
@@ -294,12 +296,15 @@ public class AnalisadorSemantico implements Expressao.Visitor<Tipo>, Comando.Vis
         Tipo esquerda = expressao.esquerda.accept(this);
         Tipo direita = expressao.direita.accept(this);
         
+        Boolean erro = false;
+        
         // Operadores lógicos: &&, ||
         if (esquerda != Tipo.BOOLEANO && esquerda != Tipo.ERRO) {
             registrarErro(expressao.operador,
                         ErroSemantico.TipoErro.TIPO_INVALIDO_OPERACAO,
                         "Operador '" + expressao.operador.getLexema() + 
                         "' requer operandos booleanos, mas o lado esquerdo é " + esquerda + ".");
+            erro = true;
         }
         
         if (direita != Tipo.BOOLEANO && direita != Tipo.ERRO) {
@@ -307,9 +312,10 @@ public class AnalisadorSemantico implements Expressao.Visitor<Tipo>, Comando.Vis
                         ErroSemantico.TipoErro.TIPO_INVALIDO_OPERACAO,
                         "Operador '" + expressao.operador.getLexema() + 
                         "' requer operandos booleanos, mas o lado direito é " + direita + ".");
+            erro = true;
         }
         
-        return Tipo.BOOLEANO;
+        return erro ? Tipo.ERRO : Tipo.BOOLEANO;
     }
     
     @Override
@@ -350,6 +356,7 @@ public class AnalisadorSemantico implements Expressao.Visitor<Tipo>, Comando.Vis
         if (valor instanceof Integer) return Tipo.INTEIRO;
         if (valor instanceof Double) return Tipo.REAL;
         if (valor instanceof String) return Tipo.TEXTO;
+        if (valor instanceof Boolean) return Tipo.BOOLEANO;
         
         return Tipo.ERRO;
     }
