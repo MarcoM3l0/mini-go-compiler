@@ -44,7 +44,7 @@ public class ScannerTest {
         List<Token> tokens = scanner.scanTokens();
         return tokens.subList(0, tokens.size() - 1);
     }
-    
+    // 
     // ============== TESTES DE PALAVRAS RESERVADAS ==============
     
     @Test

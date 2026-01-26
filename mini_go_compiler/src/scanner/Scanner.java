@@ -13,6 +13,12 @@ import java.util.*;
  */
 public class Scanner {
 
+    private final String source;       // Código fonte a ser analisado
+    private final List<Token> tokens;  // Lista de tokens identificados
+    private int start;                 // Início do lexema atual
+    private int current;               // Posição atual no código fonte
+    private int linha;                 // Linha atual
+    private int coluna;                // Coluna atual
 	
 	// Mapa de palavras reservadas para lookup rápido
     private static final Map<String, TokenType> palavrasReservadas = new HashMap<>();
@@ -34,17 +40,19 @@ public class Scanner {
      * 
      * @param source código fonte a ser tokenizado
     */
-    
+    public Scanner(String source) {
+        this.source = source;
+        this.tokens = new ArrayList<>();
+        this.start = 0;
+        this.current = 0;
+        this.linha = 1;
+        this.coluna = 1;
+    }
     
     /**
      * Realiza a análise léxica completa do código fonte.
      * 
      * @return lista de tokens identificados
-    */
-    
-    
-    /**
-     * Identifica e processa um único token.
     */
     public List<Token> scanTokens() {
         while (!isAtEnd()) {
@@ -57,7 +65,7 @@ public class Scanner {
         tokens.add(new Token(TokenType.EOF, "", linha, coluna));
         return tokens;
     }
-    
+
     /**
      * Identifica e processa um único token.
      */
@@ -167,20 +175,70 @@ public class Scanner {
     /**
      * Processa comentário de bloco /* ... *\/
     */
-    
+    private void comentarioBloco() {
+        while (!isAtEnd()) {
+            if (peek() == '*' && peekNext() == '/') {
+                advance(); // consome *
+                advance(); // consome /
+                return;
+            }
+            
+            if (peek() == '\n') {
+                linha++;
+                coluna = 0;
+            }
+            advance();
+        }
+        
+        addError("Comentário de bloco não fechado");
+    }
     
     /**
      * Processa identificadores e palavras reservadas.
      * Regra: começa com letra, seguido de letras, dígitos ou underscore.
     */
-    
+    private void identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+        
+        String text = source.substring(start, current);
+        
+        // Verifica se é palavra reservada
+        TokenType tipo = palavrasReservadas.get(text);
+        if (tipo == null) {
+            tipo = TokenType.IDENTIFICADOR;
+        }
+        
+        addToken(tipo);
+    }
     
     /**
      * Processa números (inteiros e reais).
      * Inteiro: 123
      * Real: 123.456
     */
-    
+    private void number() {
+        // Consome dígitos da parte inteira
+        while (isDigit(peek())) {
+            advance();
+        }
+        
+        // Verifica se é um número real (tem ponto decimal)
+        if (peek() == '.' && isDigit(peekNext())) {
+            // Consome o ponto
+            advance();
+            
+            // Consome dígitos da parte decimal
+            while (isDigit(peek())) {
+                advance();
+            }
+            
+            addToken(TokenType.LITERAL_REAL);
+        } else {
+            addToken(TokenType.LITERAL_INTEIRO);
+        }
+    }
     
     /**
      * Processa literais de texto (strings).
@@ -245,55 +303,95 @@ public class Scanner {
      * @param expected caractere esperado
      * @return true se o caractere foi consumido
     */
-    
+    private boolean match(char expected) {
+        if (isAtEnd()) return false;
+        if (source.charAt(current) != expected) return false;
+        
+        current++;
+        coluna++;
+        return true;
+    }
     
     /**
      * Retorna o caractere atual sem consumir.
      * 
      * @return caractere atual ou '\0' se fim do arquivo
     */
-    
+    private char peek() {
+        if (isAtEnd()) return '\0';
+        return source.charAt(current);
+    }
     
     /**
      * Retorna o próximo caractere sem consumir.
      * 
      * @return próximo caractere ou '\0' se fim do arquivo
     */
-    
+    private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
+    }
     
     /**
      * Verifica se um caractere é uma letra (a-z, A-Z).
     */
-    
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+               c == '_';
+    }
     
     /**
      * Verifica se um caractere é alfanumérico.
     */
-    
+     private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
+    }
     
     /**
      * Verifica se um caractere é um dígito (0-9).
     */
-    
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
     
     /**
      * Verifica se chegou ao fim do código fonte.
     */
-    
+     private boolean isAtEnd() {
+        return current >= source.length();
+    }
+
     /**
      * Consome e retorna o caractere atual.
     */
-    
+    private char advance() {
+        char c = source.charAt(current);
+        current++;
+        coluna++;
+        return c;
+    }
     
     /**
      * Adiciona um token à lista de tokens.
     */
-    
+    private void addToken(TokenType tipo) {
+        String text = source.substring(start, current);
+        int colunaInicio = coluna - (current - start);
+        tokens.add(new Token(tipo, text, linha, colunaInicio));
+    }
     
     /**
      * Adiciona um token de erro.
     */
-    
+     private void addError(String mensagem) {
+        String text = source.substring(start, current);
+        int colunaInicio = coluna - (current - start);
+        Token erro = new Token(TokenType.ERRO, text, linha, colunaInicio);
+        tokens.add(erro);
+        System.err.println("Erro léxico na linha " + linha + 
+                         ", coluna " + colunaInicio + ": " + mensagem);
+    }
     
     /**
      * Retorna os tokens identificados.
