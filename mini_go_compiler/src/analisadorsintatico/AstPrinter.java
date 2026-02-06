@@ -1,5 +1,4 @@
 package analisadorsintatico;
-import scanner.Token;
 import java.util.stream.Collectors;
 
 /**
