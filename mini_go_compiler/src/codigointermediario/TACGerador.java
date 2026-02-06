@@ -2,14 +2,11 @@ package codigointermediario;
 
 import analisadorsintatico.Comando;
 import analisadorsintatico.Expressao;
-import analisadorsintatico.Expressao.Literal;
 import scanner.Token;
 import scanner.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 /**
  * Gerador de Código Intermediário (Three-Address Code) para Mini-Go.
