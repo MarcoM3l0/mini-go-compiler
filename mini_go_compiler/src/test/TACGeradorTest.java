@@ -169,7 +169,7 @@ public class TACGeradorTest {
         List<TACInstrucoes> tac = gerarTAC(codigo);
         
         boolean temIgual = tac.stream()
-            .anyMatch(i -> i.getOperador() == TACInstruction.TACOperador.IGUAL);
+            .anyMatch(i -> i.getOperador() == TACInstrucoes.TACOperador.IGUAL_IGUAL);
         assertTrue(temIgual, "Deveria ter operador IGUAL");
     }
     
@@ -301,7 +301,7 @@ public class TACGeradorTest {
             .anyMatch(i -> i.getOperador() == TACInstrucoes.TACOperador.VAI_PARA);
         assertTrue(temVaiPara, "Loop deve ter vai_para");
         
-        long numRotulo = tac.stream().filter(TACInstruction::isRotulo).count();
+        long numRotulo = tac.stream().filter(TACInstrucoes::isRotulo).count();
         assertTrue(numRotulo >= 2, "Loop deve ter label de início e fim");
     }
     
@@ -480,9 +480,9 @@ public class TACGeradorTest {
         System.out.println("  x = a + b * c");
         System.out.println("\nTAC gerado:");
         for (TACInstrucoes instr : tac) {
-            if (instr.getOperador() == TACInstrucoes.TACOperaDor.MULTIPLICACAO ||
-                instr.getOperador() == TACInstrucoes.TACOperator.SOMA ||
-                (instr.getOperador() == TACInstrucoes.TACOperator.ATRIBUICAO && 
+            if (instr.getOperador() == TACInstrucoes.TACOperador.MULTIPLICACAO ||
+                instr.getOperador() == TACInstrucoes.TACOperador.SOMA ||
+                (instr.getOperador() == TACInstrucoes.TACOperador.ATRIBUICAO && 
                  instr.getResultado().equals("x"))) {
                 System.out.println("  " + instr);
             }
