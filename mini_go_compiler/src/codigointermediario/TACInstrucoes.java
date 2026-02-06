@@ -253,7 +253,7 @@ public class TACInstrucoes {
      * Cria uma instrução de rotulo.
      */
     public static TACInstrucoes rotulo(String nomeRotulo) {
-    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.RETORNAR,nomeRotulo); 
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.ROTULO, nomeRotulo); 
         return instrucao;
     }
     
