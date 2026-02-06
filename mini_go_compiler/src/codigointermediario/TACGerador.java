@@ -3,10 +3,13 @@ package codigointermediario;
 import analisadorsintatico.Comando;
 import analisadorsintatico.Expressao;
 import analisadorsintatico.Expressao.Literal;
+import scanner.Token;
 import scanner.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 /**
  * Gerador de Código Intermediário (Three-Address Code) para Mini-Go.
@@ -36,7 +39,27 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
      * @return lista de instruções TAC geradas
      */
     public List<TACInstrucoes> gerar(List<Comando> comandos) {
-    	
+    	instrucoes.clear();
+        tempCount = 0;
+        rotuloCount = 0;
+        if (comandos == null) {
+            return instrucoes;
+        }
+        if (comandos.isEmpty()){
+            return instrucoes;
+        }
+
+        for(int i = 0; i < comandos.size(); i++){
+            Comando comando = comandos.get(i);
+            comando.accept(this);
+        }
+
+        List<TACInstrucoes> listaNova = new ArrayList<TACInstrucoes>();
+        for(int i = 0; i< instrucoes.size(); i++){
+            listaNova.add(instrucoes.get(i));
+        }
+
+        return listaNova;
     }
     
     /**
@@ -44,7 +67,7 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
      * Ex: t0, t1, t2, ...
      */
     private String novoTemp() {
-    	
+    	return "t" + (tempCount++);
     }
     
     /**
@@ -52,44 +75,74 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
      * Ex: R0, R1, R2, ...
      */
     private String novoRotulo() {
-    	
+    	return "R" + (rotuloCount++);
     }
     
     /**
      * Adiciona uma instrução à lista.
      */
     private void emitir(TACInstrucoes intrucoe) {
-    	
+    	instrucoes.add(intrucoe);
     }
     
     /**
      * Retorna as instruções geradas.
      */
     public List<TACInstrucoes> getInstrucoes() {
-    	
+    	List<TACInstrucoes> lista = new ArrayList<TACInstrucoes>();
+
+        for(int i = 0; i< instrucoes.size(); i++){
+            lista.add(instrucoes.get(i));
+        }
+
+        return lista;
     }
     
     /**
      * Imprime o código TAC de forma legível.
      */
     public void imprimeCodigo() {
-    	
+    	System.out.println("=== CÓDIGO INTERMEDIÁRIO (TAC) ===");
+        for (int i = 0; i < instrucoes.size(); i++){
+            System.out.println(i + ": " + instrucoes.get(i));
+        }
+        System.out.println("==================================");
     }
     
     // ======================== VISITANTES DE COMANDOS ========================
     
     @Override
     public Void visitBloco(Comando.Bloco bloco) {
+        for(int i = 0; i < bloco.comandos.size(); i++){
+            Comando comando = bloco.comandos.get(i);
+            comando.accept(this);
+        }
+
+        return null;
     }
     
     @Override
     public Void visitDeclaracao(Comando.Declaracao decl) {
-    	
+    	if (decl.inicializador != null){
+            String temporario = decl.inicializador.accept(this);
+            String nomeVariavel = decl.nome.getLexema();
+            TACInstrucoes instrucao = TACInstrucoes.atribuicao(nomeVariavel, temporario);
+
+            emitir(instrucao);
+        }
+
+        return null;
     }
     
     @Override
     public Void visitAtribuicao(Comando.Atribuicao atrib) {
-    	
+    	String temporario = atrib.valor.accept(this);
+        String nomeVariavel = atrib.nome.getLexema();
+        TACInstrucoes instrucao = TACInstrucoes.atribuicao(nomeVariavel, temporario);
+
+        emitir(instrucao);
+
+        return null;
     }
     
     @Override
@@ -105,6 +158,35 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
          *     <código do senao>
          * R_fim:
          */
+
+        String condicaoTemporaria = comando.condicao.accept(this);
+
+        String rotuloSeNao = novoRotulo();
+        String rotuloFim = novoRotulo();
+
+        TACInstrucoes instrucaoSeFalso = TACInstrucoes.seFalso(condicaoTemporaria, rotuloSeNao);
+
+        emitir(instrucaoSeFalso);
+
+        comando.ramoThen.accept(this);
+
+        if (comando.ramoElse != null) {
+            TACInstrucoes instrucaoVaiPara = TACInstrucoes.vaiPara(rotuloFim);
+            emitir(instrucaoVaiPara);
+
+            TACInstrucoes instrucaoRotuloSeNao = TACInstrucoes.rotulo(rotuloSeNao);
+            emitir(instrucaoRotuloSeNao);
+
+            comando.ramoElse.accept(this);
+
+            TACInstrucoes instrucaoRotuloFim = TACInstrucoes.rotulo(rotuloFim);
+            emitir(instrucaoRotuloFim);
+        } else {
+            TACInstrucoes instrucaoRotuloSeNao = TACInstrucoes.rotulo(rotuloSeNao);
+            emitir(instrucaoRotuloSeNao);
+        }
+
+        return null;
     }
     
     @Override
@@ -130,17 +212,65 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
          *     vai_para R_começar
          * L_end:
          */
+
+        if (comando.inicializacao != null) {
+            comando.inicializacao.accept(this);
+        }
+
+        String rotuloComecar = novoRotulo();
+        String rotuloFim = novoRotulo();
+
+        TACInstrucoes instrucaoRotuloComecar = TACInstrucoes.rotulo(rotuloComecar);
+        emitir(instrucaoRotuloComecar);
+
+        if(comando.condicao != null) {
+            String condicaoTemporaria = comando.condicao.accept(this);
+            TACInstrucoes instrucaoSeFalso = TACInstrucoes.seFalso(condicaoTemporaria, rotuloFim);
+            emitir(instrucaoSeFalso);
+        }
+
+        comando.corpo.accept(this);
+
+        if(comando.incremento != null){
+            comando.incremento.accept(this);
+        }
+
+        TACInstrucoes instrucaoVaiPara = TACInstrucoes.vaiPara(rotuloComecar);
+        emitir(instrucaoVaiPara);
+
+        TACInstrucoes instrucaoRotuloFim = TACInstrucoes.rotulo(rotuloFim);
+        emitir(instrucaoRotuloFim);
     	
+        return null;
     }
     
     @Override
     public Void visitImprimir(Comando.Imprimir comando) {
-    	
+    	for(int i = 0; i < comando.expressoes.size(); i++){
+            Expressao expressao = comando.expressoes.get(i);
+
+            String temporario = expressao.accept(this);
+            TACInstrucoes intrucaoImprimir = TACInstrucoes.imprimir(temporario);
+
+            emitir(intrucaoImprimir);
+        }
+
+        return null;
     }
 
     @Override
     public Void visitLer(Comando.Ler comando) {
-    	
+    	for(int i = 0; i < comando.variaveis.size(); i++){
+            Token var = comando.variaveis.get(i);
+
+            String nomeVariavel = var.getLexema();
+
+            TACInstrucoes instrucaoLer = TACInstrucoes.ler(nomeVariavel);
+
+            emitir(instrucaoLer);
+        }
+
+        return null;
     }
     
 
@@ -149,7 +279,16 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
 
     @Override
     public String visitBinaria(Expressao.Binaria expressao) {
-    	
+    	String esquerda = expressao.esquerda.accept(this);
+        String direita = expressao.direita.accept(this);
+
+        String temporario = novoTemp();
+
+        TACInstrucoes.TACOperador tacOperador = mapOperador(expressao.operador.getTipo());
+
+        emitir(TACInstrucoes.binaria(tacOperador, temporario, esquerda, direita));
+
+        return temporario;
     }
     
     @Override
@@ -180,27 +319,78 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
          * R_fim:
          */
     	
-    	
+    	String resultado = novoTemp();
+        String rotuloVerdadeiro = novoRotulo();
+        String rotuloFalso = novoRotulo();
+        String rotuloFim = novoRotulo();
+
+        if(expressao.operador.getTipo() == TokenType.E_LOGICO){
+            String esquerda = expressao.esquerda.accept(this);
+            emitir(TACInstrucoes.seFalso(esquerda, rotuloFalso));
+
+            String direita = expressao.direita.accept(this);
+            emitir(TACInstrucoes.seFalso(direita, rotuloFalso));
+
+            emitir(TACInstrucoes.atribuicao(resultado, "1"));
+            emitir(TACInstrucoes.vaiPara(rotuloFim));
+
+            emitir(TACInstrucoes.rotulo(rotuloFalso));
+            emitir(TACInstrucoes.atribuicao(resultado, "0"));
+
+            emitir(TACInstrucoes.rotulo(rotuloFim));
+        } else {
+            String esquerda = expressao.esquerda.accept(this);
+            emitir(TACInstrucoes.seVerdadeiro(esquerda, rotuloVerdadeiro));
+
+            String direita = expressao.direita.accept(this);
+            emitir(TACInstrucoes.seVerdadeiro(direita, rotuloVerdadeiro));
+
+            emitir(TACInstrucoes.atribuicao(resultado, "0"));
+            emitir(TACInstrucoes.vaiPara(rotuloFim));
+
+            emitir(TACInstrucoes.rotulo(rotuloVerdadeiro));
+            emitir(TACInstrucoes.atribuicao(resultado, "1"));
+
+            emitir(TACInstrucoes.rotulo(rotuloFim));
+        }
+
+        return resultado;
     }
     
     @Override
     public String visitUnaria(Expressao.Unaria expressao) {
-    	
+    	String operando = expressao.direita.accept(this);
+
+        String temporaria = novoTemp();
+
+        TACInstrucoes.TACOperador tacOperador = mapOperador(expressao.operador.getTipo());
+
+        emitir(TACInstrucoes.unario(tacOperador, temporaria, operando));
+
+        return temporaria;
     }
     
     @Override
     public String visitLiteral(Expressao.Literal expressao) {
-    	
+    	if(expressao.valor == null){
+            return "null";
+        }
+
+        if (expressao.valor instanceof String){
+            return "\"" + expressao.valor + "\"";
+        }
+
+        return expressao.valor.toString();
     }
     
     @Override
     public String visitAgrupamento(Expressao.Agrupamento expressao) {
-    	
+    	return expressao.expressao.accept(this);
     }
     
     @Override
     public String visitVariavelAcesso(Expressao.VariavelAcesso expressao) {
-    	
+    	return expressao.nome.getLexema();
     }
     
     // =========================== MÉTODOS AUXILIARES =========================
@@ -237,4 +427,4 @@ public class TACGerador implements Expressao.Visitor<String>, Comando.Visitor<Vo
         rotuloCount = 0;
     }
 }
-}
+

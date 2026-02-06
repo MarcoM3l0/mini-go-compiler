@@ -79,46 +79,86 @@ public class TACInstrucoes {
      * Construtor completo (operação binária).
      */
     public TACInstrucoes(TACOperador operador, String resultado, String operando1, String operando2) {
-    	
+    	this.operador = operador;
+        this.resultado = resultado;
+        this.operando1 = operando1;
+        this.operando2 = operando2;
     }
     
     /**
      * Construtor para operação unária ou atribuição.
      */
     public TACInstrucoes(TACOperador operador, String resultado, String operando1) {
-    	
+    	this.operador = operador;
+        this.resultado = resultado;
+        this.operando1 = operando1;
+        this.operando2 = null;   
     }
     
     /**
      * Construtor para rotulos e vai_para.
      */
     public TACInstrucoes(TACOperador operador, String resultado) {
-    	
+    	this.operador = operador;
+        this.resultado = resultado;
+        this.operando1 = null;
+        this.operando2 = null;
     }
     
     // Getters
     
-    
+    public TACOperador getOperador(){
+        return this.operador;
+    }
+
+    public String getResultado(){
+        return this.resultado;
+    }
+
+    public String getOperando1(){
+        return this.operando1;
+    }
+
+    public String getOperando2(){
+        return this.operando2;
+    }
     
     /**
      * Verifica se a instrução é um rotulo.
      */
     public boolean isRotulo() {
-    	
+    	return this.operador == TACOperador.ROTULO;
     }
     
     /**
      * Verifica se a instrução é um desvio (vai_para, se_false, se_verdadeiro).
      */
     public boolean isDesvio() {
-    	
+    	return this.operador == TACOperador.VAI_PARA;
     }
     
     /**
      * Verifica se a instrução é uma operação aritmética.
      */
     public boolean isOperacaoAritmetica() {
-    	
+    	if (this.operador == TACOperador.SOMA) { 
+            return true; 
+        } else if (this.operador == TACOperador.SUBTRACAO) { 
+            return true; 
+
+        } else if (this.operador == TACOperador.MULTIPLICACAO) { 
+            return true; 
+
+        } else if (this.operador == TACOperador.DIVISAO) { 
+            return true; 
+
+        } else if (this.operador == TACOperador.INVERSAO) { 
+            return true; 
+
+        } else { 
+            return false; 
+
+        }
     }
     
     /**
@@ -189,63 +229,72 @@ public class TACInstrucoes {
      */
     
     public static  TACInstrucoes binaria(TACOperador op, String resul, String op1, String op2) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(op, resul, op1, op2); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução de operação unária.
      */
     public static TACInstrucoes unario(TACOperador op, String resul, String operando) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(op, resul, operando); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução de atribuição.
      */
     public static TACInstrucoes  atribuicao(String resul, String fonte) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.ATRIBUICAO,resul, fonte); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução de rotulo.
      */
     public static TACInstrucoes rotulo(String nomeRotulo) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.RETORNAR,nomeRotulo); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução vai_para.
      */
     public static TACInstrucoes vaiPara(String nomeRotulo) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.VAI_PARA, nomeRotulo); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução condicional se_falso.
      */
     public static TACInstrucoes seFalso(String condicao, String nomeRotulo) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.SE_FALSO, nomeRotulo, condicao); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução condicional se_verdadeiro.
      */
     public static TACInstrucoes seVerdadeiro(String condicao, String nomeRotulo) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.SE_VERDADEIRO, nomeRotulo, condicao); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução imprimir.
      */
     public static TACInstrucoes imprimir(String valor) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.IMPRIMIR, null, valor); 
+        return instrucao;
     }
     
     /**
      * Cria uma instrução ler.
      */
     public static TACInstrucoes ler(String variavel) {
-    	
+    	TACInstrucoes instrucao = new TACInstrucoes(TACOperador.LER, variavel); 
+        return instrucao;
     }
     
 }
