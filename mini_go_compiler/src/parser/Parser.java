@@ -407,5 +407,7 @@ public class Parser {
         return new ParseError();
     }
 
-    private static class ParseError extends RuntimeException {}
+    private static class ParseError extends RuntimeException {
+    	private static final long serialVersionUID = 1L;
+    }
 }
